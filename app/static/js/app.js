@@ -63,8 +63,79 @@ const router = new VueRouter({
     ]
 });
 
+const Upload = new Vue.component('upload-form',
+{
+   template:
+   `
+   <div class="main">
+        <form @submit.prevent="uploadPhoto" method="post" enctype="multipart/form-data" id="uploadPhoto">
+            <label> Description </label>
+            <textarea placeholder="Add Description Here."></textarea>
+            
+            <label> Upload Photo Here. </label>
+            <input type="file" class="fm-control" name="photo" />
+            
+            <button type="submit" class="btn btn primary"> Upload Photo </button>
+        </form>
+   </div>
+   `,
+   data: function() {
+       return{};
+       
+   },
+   methods:
+   {
+       uploadPhoto: function()
+       {
+           let uploadForm = document.getElementById('uploadForm');
+           let form_data = new FormData(uploadForm);
+           
+           fetch("/api/upload", 
+           {
+               method: 'POST',
+               body: form_data,
+               headers:
+               {
+                   'X-CSRFToken': token
+                   
+               },
+               credentials: 'same-origin'
+               
+           }).then(function (response)
+           {
+               return response.json();
+               
+           }).then(function(jsonResponse)
+           {
+               console.log(jsonResponse);
+               
+           }).catch(function (error)
+           {
+               console.log(error);
+               
+           });
+       }
+   }
+
+});
+
+
+
 // Instantiate our main Vue Instance
 let app = new Vue({
     el: "#app",
     router
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
