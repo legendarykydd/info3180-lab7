@@ -17,7 +17,7 @@ Vue.component('app-header', {
     </nav>
     `
 });
-
+       /* global Vue*/
 Vue.component('app-footer', {
     template: `
     <footer>
@@ -57,7 +57,7 @@ const router = new VueRouter({
     routes: [
         {path: "/", component: Home},
         // Put other routes here
-
+        {path: "/upload", component: uploadForm},
         // This is a catch all route in case none of the above matches
         {path: "*", component: NotFound}
     ]
@@ -79,44 +79,47 @@ const Upload = new Vue.component('upload-form',
         </form>
    </div>
    `,
-   data: function() {
-       return{};
-       
-   },
-   methods:
-   {
-       uploadPhoto: function()
-       {
-           let uploadForm = document.getElementById('uploadForm');
-           let form_data = new FormData(uploadForm);
-           
-           fetch("/api/upload", 
-           {
-               method: 'POST',
-               body: form_data,
-               headers:
-               {
-                   'X-CSRFToken': token
-                   
-               },
-               credentials: 'same-origin'
-               
-           }).then(function (response)
-           {
-               return response.json();
-               
-           }).then(function(jsonResponse)
-           {
-               console.log(jsonResponse);
-               
-           }).catch(function (error)
-           {
-               console.log(error);
-               
-           });
-       }
-   }
-
+    data: function(){
+        return {
+            message: false,
+            error: false,
+            errors: []
+        };
+    },
+    methods: {
+        uploadPhoto(){
+            let uploadForm = document.getElementById('uploadForm');
+            let form_data = new FormData(uploadForm); 
+            let self = this;
+        /* global fetch*/    
+        fetch("/api/upload", {
+            method: 'POST',
+            body: form_data,
+            headers: {
+                /* global token*/
+                'X-CSRFToken': token
+            },
+            credentials: 'same-origin'
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (jsonResponse) {
+                if (jsonResponse.errors){
+                    self.errors = jsonResponse.errors;
+                    self.error = true;
+                    self.message = false;
+                }   
+                else{
+                    self.message = true;
+                    self.error = false;
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+    }
 });
 
 
